@@ -1,1 +1,1 @@
-# http_syncplay_plugin
+# HttpSyncplayPlugin
