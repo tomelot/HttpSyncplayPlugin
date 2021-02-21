@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>movi nite</title>
+  <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAqGMUAE2vuAAVll4AvXgqADWPDgA2jpYAJIyeAEansAAnipwANbBJAIxLAAAnlagARrCCAAAAAAAAAAAAAAALu6rQAAAAC7u9o90wAAC7uxzaOqoAC7sREczaG7ALsREauxERsLsREcG7FBG7uxHay7sRQRu7FisbuxERG7sYKxu7EUEbu8yaGrsRQRu7wsLcqxERuwvIhyyqFBGwC6Xc3VVRG7AAul3boRG9AAAF1bu7G9AAAAANXbuwAAD4HwAA4AcAAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAQAAwAMAAOAHAAD4HwAA" rel="icon" type="image/x-icon" />
+</head>
+<body>
+
+<audio controls preload="auto">
+  <source src="https://drive.google.com/u/0/uc?id=1ISlWM-cfYOMgD-bPIom8sH_RpAd5HUXr&export=download" type="audio/mpeg">
+</audio>
+
+</body>
+<script>
+  function httpGet(theUrl)
+  {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+  }
+
+  const socket = io('ws://tomswork.shop:5000');
+
+  socket.on("sync",data => {
+    var audio=document.querySelector("audio")
+    
+    var now = new Date() / 1000;
+    var server_time = parseFloat(httpGet("time")) + ((new Date() / 1000) - now);
+
+    audio.currentTime = data.position + (server_time - data.time)
+
+    if (data.paused){
+      audio.pause()
+    }
+    else{
+      audio.play()
+    }
+
+    audio.playbackRate=data.speed
+
+  });
+
+</script>
+
+</html>
