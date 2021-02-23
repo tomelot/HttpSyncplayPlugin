@@ -40,16 +40,6 @@
 
   const socket = io('ws://tomswork.shop:5000');
   const audio = document.querySelector("audio");
-  var pos_target;
-  var speed_correction = false;
-
-  setInterval(function () {
-    if (speed_correction) {
-      audio.playbackRate = 1 + (((pos_target - audio.currentTime) * 0.5) * 0.1)
-    } else {
-      audio.playbackRate = 1.0;
-    }
-  }, 10);
 
   socket.on("sync", data => {
     var server_time = parseFloat(httpGet("time"));
@@ -58,14 +48,9 @@
 
     console.log(Math.abs(audio.currentTime - pos));
 
-    if (Math.abs(audio.currentTime - pos) >= 0.5) {
+    if (Math.abs(audio.currentTime - pos) >= 0.2) {
       speed_correction = false;
       audio.currentTime = pos;
-    } else if (Math.abs(audio.currentTime - pos) >= 0.05) {
-      speed_correction = true;
-      pos_target = pos;
-    } else {
-      speed_correction = false;
     }
 
     if (data.paused) {
