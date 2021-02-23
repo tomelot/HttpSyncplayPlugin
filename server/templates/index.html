@@ -1,44 +1,80 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>movi nite</title>
   <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
-  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAqGMUAE2vuAAVll4AvXgqADWPDgA2jpYAJIyeAEansAAnipwANbBJAIxLAAAnlagARrCCAAAAAAAAAAAAAAALu6rQAAAAC7u9o90wAAC7uxzaOqoAC7sREczaG7ALsREauxERsLsREcG7FBG7uxHay7sRQRu7FisbuxERG7sYKxu7EUEbu8yaGrsRQRu7wsLcqxERuwvIhyyqFBGwC6Xc3VVRG7AAul3boRG9AAAF1bu7G9AAAAANXbuwAAD4HwAA4AcAAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAQAAwAMAAOAHAAD4HwAA" rel="icon" type="image/x-icon" />
+  <link
+    href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAqGMUAE2vuAAVll4AvXgqADWPDgA2jpYAJIyeAEansAAnipwANbBJAIxLAAAnlagARrCCAAAAAAAAAAAAAAALu6rQAAAAC7u9o90wAAC7uxzaOqoAC7sREczaG7ALsREauxERsLsREcG7FBG7uxHay7sRQRu7FisbuxERG7sYKxu7EUEbu8yaGrsRQRu7wsLcqxERuwvIhyyqFBGwC6Xc3VVRG7AAul3boRG9AAAF1bu7G9AAAAANXbuwAAD4HwAA4AcAAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAQAAwAMAAOAHAAD4HwAA"
+    rel="icon" type="image/x-icon" />
 </head>
+
 <body>
 
-<audio controls preload="auto">
-  <source src="https://drive.google.com/u/0/uc?id=1ISlWM-cfYOMgD-bPIom8sH_RpAd5HUXr&export=download" type="audio/mpeg">
-</audio>
+  <audio controls src="https://download1595.mediafire.com/5wcotdn9rung/b0j5hkry9fuiepw/test.mp3"></audio>
 
 </body>
 <script>
-  function httpGet(theUrl)
-  {
+  function sourceOpen() {
+    fetch('https://download1595.mediafire.com/5wcotdn9rung/b0j5hkry9fuiepw/test.mp3')
+      .then(response => response.arrayBuffer())
+      .then(data => {
+        var audio = document.querySelector("audio");
+        const blob = new Blob([data], { type: "audio/wav" });
+        audio.src = window.URL.createObjectURL(blob);
+        console.log("done");
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+  sourceOpen();
+</script>
+<script>
+  function httpGet(theUrl) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
+    xmlHttp.open("GET", theUrl, false); // false for synchronous request
+    xmlHttp.send(null);
     return xmlHttp.responseText;
   }
 
   const socket = io('ws://tomswork.shop:5000');
+  const audio = document.querySelector("audio");
+  var pos_target;
+  var speed_correction = false;
 
-  socket.on("sync",data => {
-    var audio=document.querySelector("audio")
-    
-    var now = new Date() / 1000;
-    var server_time = parseFloat(httpGet("time")) + ((new Date() / 1000) - now);
+  setInterval(function () {
+    if (speed_correction) {
+      audio.playbackRate = 1 + (((pos_target - audio.currentTime) * 0.5) * 0.1)
+    } else {
+      audio.playbackRate = 1.0;
+    }
+  }, 10);
 
-    audio.currentTime = data.position + (server_time - data.time)
+  socket.on("sync", data => {
+    var server_time = parseFloat(httpGet("time"));
+    var addon_value = 0.3;
+    var pos = data.position + (server_time - data.time) + addon_value;
 
-    if (data.paused){
+    console.log(Math.abs(audio.currentTime - pos));
+
+    if (Math.abs(audio.currentTime - pos) >= 0.5) {
+      speed_correction = false;
+      audio.currentTime = pos;
+    } else if (Math.abs(audio.currentTime - pos) >= 0.05) {
+      speed_correction = true;
+      pos_target = pos;
+    } else {
+      speed_correction = false;
+    }
+
+    if (data.paused) {
       audio.pause()
     }
-    else{
+    else {
       audio.play()
     }
 
-    audio.playbackRate=data.speed
 
   });
 
