@@ -97,7 +97,7 @@
     return xmlHttp.responseText;
   }
 
-  const socket = io('ws://tomswork.shop:5000');
+  const socket = io('ws://46.101.165.25:5000/:5000');
   const audio = document.querySelector("audio");
 
   socket.on("sync", data => {
