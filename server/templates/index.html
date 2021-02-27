@@ -106,8 +106,6 @@
     var addon_value = (Date.now() - start) / 1000;
     var pos = data.position + (server_time - data.time) + addon_value;
 
-    console.log(pos);
-
     if (Math.abs(audio.currentTime - pos) >= 0.1) {
       speed_correction = false;
       audio.currentTime = pos;
