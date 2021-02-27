@@ -7,16 +7,76 @@
   <link
     href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAqGMUAE2vuAAVll4AvXgqADWPDgA2jpYAJIyeAEansAAnipwANbBJAIxLAAAnlagARrCCAAAAAAAAAAAAAAALu6rQAAAAC7u9o90wAAC7uxzaOqoAC7sREczaG7ALsREauxERsLsREcG7FBG7uxHay7sRQRu7FisbuxERG7sYKxu7EUEbu8yaGrsRQRu7wsLcqxERuwvIhyyqFBGwC6Xc3VVRG7AAul3boRG9AAAF1bu7G9AAAAANXbuwAAD4HwAA4AcAAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAQAAwAMAAOAHAAD4HwAA"
     rel="icon" type="image/x-icon" />
+
+  <link rel="stylesheet" href="static/css/loader.css">
+  <link rel="stylesheet" href="static/css/play.css">
+  <link rel="stylesheet" href="static/css/bar.css">
+  <style>
+    body {
+      background-color: #659DbD;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+  </style>
 </head>
 
 <body>
 
-  <audio controls src="https://download1595.mediafire.com/5wcotdn9rung/b0j5hkry9fuiepw/test.mp3"></audio>
+  <p class="loader">
+  <h1 class="title">Loading</h1>
+  <div class="rainbow-marker-loader"></div>
+  </p>
+
+  <audio id="player" style="visibility:hidden;"
+    src="http://download1595.mediafire.com/38qzn1wdeh7g/b0j5hkry9fuiepw/test.mp3"></audio>
+
+  <div class='container' style="visibility:hidden;">
+    <a onclick='this.style="visibility:hidden;";document.getElementById("player").play();document.getElementsByClassName("progress-bar")[0].style = "";document.getElementsByClassName("count")[0].style = "";'
+      class='playBut'>
+
+      <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In  -->
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/" x="0px" y="0px" width="213.7px" height="213.7px"
+        viewBox="0 0 213.7 213.7" enable-background="new 0 0 213.7 213.7" xml:space="preserve">
+
+        <polygon class='triangle' id="XMLID_18_" fill="none" stroke-width="7" stroke-linecap="round"
+          stroke-linejoin="round" stroke-miterlimit="10" points="
+    73.5,62.5 148.5,105.8 73.5,149.1 " />
+
+        <circle class='circle' id="XMLID_17_" fill="none" stroke-width="7" stroke-linecap="round"
+          stroke-linejoin="round" stroke-miterlimit="10" cx="106.8" cy="106.8" r="103.3" />
+      </svg>
+
+    </a>
+  </div>
+
+  <div class="progress-bar" style="visibility: hidden;"></div>
+  <h1 class="count" style="visibility: hidden;"></h1>
 
 </body>
 <script>
+  function draw() {
+    const audio = document.querySelector("audio");
+    var body = document.querySelector('body'),
+      bar = document.querySelector('.progress-bar'),
+      counter = document.querySelector('.count');
+
+    i = (audio.currentTime / audio.duration) * 100;
+    bar.style.width = i + '%';
+    counter.innerHTML = Math.round(i) + '%';
+  };
+
+  setInterval(draw, 300);
+
   function sourceOpen() {
-    fetch('https://download1595.mediafire.com/5wcotdn9rung/b0j5hkry9fuiepw/test.mp3')
+    fetch('http://download1595.mediafire.com/38qzn1wdeh7g/b0j5hkry9fuiepw/test.mp3')
       .then(response => response.arrayBuffer())
       .then(data => {
         var audio = document.querySelector("audio");
@@ -29,8 +89,7 @@
       });
   }
   sourceOpen();
-</script>
-<script>
+
   function httpGet(theUrl) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", theUrl, false); // false for synchronous request
@@ -42,22 +101,32 @@
   const audio = document.querySelector("audio");
 
   socket.on("sync", data => {
+    var start = Date.now();
     var server_time = parseFloat(httpGet("time"));
-    var addon_value = 0.3;
+    var addon_value = (Date.now() - start) / 1000;
     var pos = data.position + (server_time - data.time) + addon_value;
 
-    console.log(Math.abs(audio.currentTime - pos));
-
-    if (Math.abs(audio.currentTime - pos) >= 0.2) {
+    if (Math.abs(audio.currentTime - pos) >= 0.1) {
       speed_correction = false;
       audio.currentTime = pos;
     }
 
     if (data.paused) {
-      audio.pause()
+      if (!audio.paused) {
+        audio.pause();
+      }
     }
     else {
-      audio.play()
+      try {
+        document.getElementsByClassName("title")[0].remove();
+        document.getElementsByClassName("rainbow-marker-loader")[0].remove();
+        document.getElementsByClassName("container")[0].style = "";
+      } catch {
+
+      }
+      if (audio.paused) {
+        audio.play();
+      }
     }
 
 
