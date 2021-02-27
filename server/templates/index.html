@@ -35,7 +35,7 @@
   </p>
 
   <audio id="player" style="visibility:hidden;"
-    src="{{url_for('static', filename='test.mp3')}}"></audio>
+    src="{{url_for('static', filename='output.mp3')}}"></audio>
 
   <div class='container' style="visibility:hidden;">
     <a onclick='this.style="visibility:hidden;";document.getElementById("player").play();document.getElementsByClassName("progress-bar")[0].style = "";document.getElementsByClassName("count")[0].style = "";'
@@ -76,7 +76,7 @@
   setInterval(draw, 300);
 
   function sourceOpen() {
-    fetch("{{url_for('static', filename='test.mp3')}}")
+    fetch("{{url_for('static', filename='output.mp3')}}")
       .then(response => response.arrayBuffer())
       .then(data => {
         var audio = document.querySelector("audio");
