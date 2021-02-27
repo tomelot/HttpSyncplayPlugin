@@ -97,7 +97,7 @@
     return xmlHttp.responseText;
   }
 
-  const socket = io('ws://46.101.165.25:5000/:5000');
+  const socket = io('ws://46.101.165.25:5000/');
   const audio = document.querySelector("audio");
 
   socket.on("sync", data => {
@@ -107,7 +107,7 @@
     var pos = data.position + (server_time - data.time) + addon_value;
 
     console.log(pos);
-    
+
     if (Math.abs(audio.currentTime - pos) >= 0.1) {
       speed_correction = false;
       audio.currentTime = pos;
